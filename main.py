@@ -6,7 +6,7 @@ import pandas as pd
 import gspread
 from dotenv import load_dotenv
 from openai import OpenAI
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from google.oauth2.service_account import Credentials
 
 # Constants
