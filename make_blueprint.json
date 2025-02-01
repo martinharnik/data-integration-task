@@ -1,0 +1,813 @@
+{
+    "name": "Integrace Google Sheets, Microsoft 365 Email (Outlook)",
+    "flow": [
+        {
+            "id": 13,
+            "module": "google-sheets:getSheetContent",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": 5252512
+            },
+            "mapper": {
+                "from": "drive",
+                "range": "A1:E4",
+                "select": "list",
+                "sheetId": "List 1",
+                "spreadsheetId": "/1jNAHJAc-IABiKB2NCwmYK_9TLCSWBbznzDKGk6lPbps",
+                "includesHeaders": true,
+                "valueRenderOption": "FORMATTED_VALUE",
+                "dateTimeRenderOption": "FORMATTED_STRING"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "from": {
+                            "label": "My Drive"
+                        },
+                        "select": {
+                            "label": "Search by path"
+                        },
+                        "sheetId": {
+                            "label": "List 1"
+                        },
+                        "spreadsheetId": {
+                            "path": [
+                                "crypto-aggregated"
+                            ]
+                        },
+                        "includesHeaders": {
+                            "mode": "chose"
+                        },
+                        "valueRenderOption": {
+                            "mode": "chose",
+                            "label": "Formatted value"
+                        },
+                        "dateTimeRenderOption": {
+                            "mode": "chose",
+                            "label": "Formatted string"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google"
+                            },
+                            "label": "My Google connection (martin.harnik91@gmail.com)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "select",
+                        "type": "select",
+                        "label": "Search Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "list",
+                                "fromAll",
+                                "map"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "range",
+                        "type": "text",
+                        "label": "Range",
+                        "required": true
+                    },
+                    {
+                        "name": "includesHeaders",
+                        "type": "boolean",
+                        "label": "Table contains headers",
+                        "required": true
+                    },
+                    {
+                        "name": "valueRenderOption",
+                        "type": "select",
+                        "label": "Value render option",
+                        "validate": {
+                            "enum": [
+                                "FORMATTED_VALUE",
+                                "UNFORMATTED_VALUE",
+                                "FORMULA"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "dateTimeRenderOption",
+                        "type": "select",
+                        "label": "Date and time render option",
+                        "validate": {
+                            "enum": [
+                                "SERIAL_NUMBER",
+                                "FORMATTED_STRING"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "Drive",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "drive",
+                                "share",
+                                "team"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "spreadsheetId",
+                        "type": "file",
+                        "label": "Spreadsheet ID",
+                        "required": true
+                    },
+                    {
+                        "name": "sheetId",
+                        "type": "select",
+                        "label": "Sheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "tableFirstRow",
+                        "type": "text",
+                        "label": "Row with headers"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "__IMTLENGTH__",
+                        "type": "uinteger",
+                        "label": "Celkem záznamů"
+                    },
+                    {
+                        "name": "__IMTINDEX__",
+                        "type": "uinteger",
+                        "label": "Pořadí záznamu"
+                    },
+                    {
+                        "name": "__ROW_NUMBER__",
+                        "type": "number",
+                        "label": "Row number"
+                    },
+                    {
+                        "name": "__SPREADSHEET_ID__",
+                        "type": "text",
+                        "label": "Spreadsheet ID"
+                    },
+                    {
+                        "name": "__SHEET__",
+                        "type": "text",
+                        "label": "Sheet"
+                    },
+                    {
+                        "name": "0",
+                        "type": "text",
+                        "label": "Category (A)"
+                    },
+                    {
+                        "name": "1",
+                        "type": "text",
+                        "label": "Number of coins (B)"
+                    },
+                    {
+                        "name": "2",
+                        "type": "text",
+                        "label": "Average price (C)"
+                    },
+                    {
+                        "name": "3",
+                        "type": "text",
+                        "label": "Average change (D)"
+                    },
+                    {
+                        "name": "4",
+                        "type": "text",
+                        "label": "Last updated (E)"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 18,
+            "module": "util:TextAggregator",
+            "version": 1,
+            "parameters": {
+                "feeder": 13,
+                "rowSeparator": ""
+            },
+            "mapper": {
+                "value": "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 60%; text-align: center; font-size: 13px;\">\n    <thead>\n        <tr>\n            <th style=\"width: 20%;\">{{13.`0`}}</th>\n            <th style=\"width: 15%;\">{{13.`1`}}</th>\n            <th style=\"width: 20%;\">{{13.`2`}}</th>\n            <th style=\"width: 20%;\">{{13.`3`}}</th>\n            <th style=\"width: 20%;\">{{13.`4`}}</th>\n        </tr>\n    </thead>\n</table>"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0
+                },
+                "restore": {
+                    "extra": {
+                        "feeder": {
+                            "label": "Google Sheets - Get Range Values"
+                        }
+                    },
+                    "parameters": {
+                        "rowSeparator": {
+                            "label": "Empty"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "rowSeparator",
+                        "type": "select",
+                        "label": "Oddělovač řádků",
+                        "validate": {
+                            "enum": [
+                                "\n",
+                                "\t",
+                                "other"
+                            ]
+                        }
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "value",
+                        "type": "text",
+                        "label": "Text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 20,
+            "module": "google-sheets:getSheetContent",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": 5252512
+            },
+            "mapper": {
+                "from": "drive",
+                "range": "A1:E12",
+                "select": "list",
+                "sheetId": "List 1",
+                "spreadsheetId": "/1qmPpu8SLp9qkgCNfaIF7qWXahakK5LnUlBmx4ES3ZY4",
+                "includesHeaders": true,
+                "valueRenderOption": "FORMATTED_VALUE",
+                "dateTimeRenderOption": "FORMATTED_STRING"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "from": {
+                            "label": "My Drive"
+                        },
+                        "select": {
+                            "label": "Search by path"
+                        },
+                        "sheetId": {
+                            "label": "List 1"
+                        },
+                        "spreadsheetId": {
+                            "path": [
+                                "crypto-all-coins"
+                            ]
+                        },
+                        "includesHeaders": {
+                            "mode": "chose"
+                        },
+                        "valueRenderOption": {
+                            "mode": "chose",
+                            "label": "Formatted value"
+                        },
+                        "dateTimeRenderOption": {
+                            "mode": "chose",
+                            "label": "Formatted string"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google"
+                            },
+                            "label": "My Google connection (martin.harnik91@gmail.com)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "select",
+                        "type": "select",
+                        "label": "Search Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "list",
+                                "fromAll",
+                                "map"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "range",
+                        "type": "text",
+                        "label": "Range",
+                        "required": true
+                    },
+                    {
+                        "name": "includesHeaders",
+                        "type": "boolean",
+                        "label": "Table contains headers",
+                        "required": true
+                    },
+                    {
+                        "name": "valueRenderOption",
+                        "type": "select",
+                        "label": "Value render option",
+                        "validate": {
+                            "enum": [
+                                "FORMATTED_VALUE",
+                                "UNFORMATTED_VALUE",
+                                "FORMULA"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "dateTimeRenderOption",
+                        "type": "select",
+                        "label": "Date and time render option",
+                        "validate": {
+                            "enum": [
+                                "SERIAL_NUMBER",
+                                "FORMATTED_STRING"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "Drive",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "drive",
+                                "share",
+                                "team"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "spreadsheetId",
+                        "type": "file",
+                        "label": "Spreadsheet ID",
+                        "required": true
+                    },
+                    {
+                        "name": "sheetId",
+                        "type": "select",
+                        "label": "Sheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "tableFirstRow",
+                        "type": "text",
+                        "label": "Row with headers"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "__IMTLENGTH__",
+                        "type": "uinteger",
+                        "label": "Celkem záznamů"
+                    },
+                    {
+                        "name": "__IMTINDEX__",
+                        "type": "uinteger",
+                        "label": "Pořadí záznamu"
+                    },
+                    {
+                        "name": "__ROW_NUMBER__",
+                        "type": "number",
+                        "label": "Row number"
+                    },
+                    {
+                        "name": "__SPREADSHEET_ID__",
+                        "type": "text",
+                        "label": "Spreadsheet ID"
+                    },
+                    {
+                        "name": "__SHEET__",
+                        "type": "text",
+                        "label": "Sheet"
+                    },
+                    {
+                        "name": "0",
+                        "type": "text",
+                        "label": "Coin (A)"
+                    },
+                    {
+                        "name": "1",
+                        "type": "text",
+                        "label": "Description (B)"
+                    },
+                    {
+                        "name": "2",
+                        "type": "text",
+                        "label": "Price (USD) (C)"
+                    },
+                    {
+                        "name": "3",
+                        "type": "text",
+                        "label": "Change (24h) (D)"
+                    },
+                    {
+                        "name": "4",
+                        "type": "text",
+                        "label": "Last updated (E)"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 21,
+            "module": "util:TextAggregator",
+            "version": 1,
+            "parameters": {
+                "feeder": 20,
+                "rowSeparator": ""
+            },
+            "mapper": {
+                "value": "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; text-align: center; font-size: 13px;\">\n    <thead>\n        <tr>\n            <th style=\"width: 7%;\">{{20.`0`}}</th>\n            <th style=\"width: 68%; text-align: left;\">{{20.`1`}}</th>\n            <th style=\"width: 7%;\">{{20.`2`}}</th>\n            <th style=\"width: 8%;\">{{20.`3`}}</th>\n            <th style=\"width: 10%;\">{{20.`4`}}</th>\n        </tr>\n    </thead>\n</table>"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 0
+                },
+                "restore": {
+                    "extra": {
+                        "feeder": {
+                            "label": "Google Sheets - Get Range Values [20]"
+                        }
+                    },
+                    "parameters": {
+                        "rowSeparator": {
+                            "label": "Empty"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "rowSeparator",
+                        "type": "select",
+                        "label": "Oddělovač řádků",
+                        "validate": {
+                            "enum": [
+                                "\n",
+                                "\t",
+                                "other"
+                            ]
+                        }
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "value",
+                        "type": "text",
+                        "label": "Text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 3,
+            "module": "microsoft-email:createAndSendAMessage",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": 5252645
+            },
+            "mapper": {
+                "from": [
+                    {
+                        "address": "harm12@vse.cz"
+                    }
+                ],
+                "content": "<p>Hi Martin,</p>\n\n<p>Here’s the latest crypto market data for you:</p>\n\n<h3>Your cryptocurrencies</h3>\n{{21.text}}\n<h3>Category overview</h3>\n{{18.text}}\n\n<p style=\"font-size: 11px;\">\n    <strong>Proof of work:</strong> Bitcoin, Litecoin, Dogecoin <br>\n    <strong>Proof of stake:</strong> Ethereum, Solana, Near, Cardano, Polkadot, Binance Coin, Chainlink, Tron\n</p>\n\n<p>Let me know if you have any thoughts on this or if you’d like more details!</p>\n\n<p>Regards</p>\n<p>Martin</p>",
+                "subject": "Crypto Market Data",
+                "importance": "Normal",
+                "contentType": "html",
+                "toRecipients": [
+                    {
+                        "address": "harm12@vse.cz"
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "from": {
+                            "mode": "chose",
+                            "items": [
+                                null
+                            ],
+                            "collapsed": true
+                        },
+                        "replyTo": {
+                            "mode": "chose"
+                        },
+                        "importance": {
+                            "mode": "chose",
+                            "label": "Normal"
+                        },
+                        "attachments": {
+                            "mode": "chose"
+                        },
+                        "contentType": {
+                            "mode": "chose",
+                            "label": "HTML"
+                        },
+                        "ccRecipients": {
+                            "mode": "chose"
+                        },
+                        "toRecipients": {
+                            "mode": "chose",
+                            "items": [
+                                null
+                            ],
+                            "collapsed": true
+                        },
+                        "bccRecipients": {
+                            "mode": "chose"
+                        },
+                        "internetMessageHeaders": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "azure"
+                            },
+                            "label": "My Microsoft connection (Martin Harník)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:azure",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "Subject",
+                        "required": true
+                    },
+                    {
+                        "name": "contentType",
+                        "type": "select",
+                        "label": "Body Content Type",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "html",
+                                "text"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "content",
+                        "type": "text",
+                        "label": "Body Content",
+                        "required": true
+                    },
+                    {
+                        "name": "importance",
+                        "type": "select",
+                        "label": "Importance",
+                        "validate": {
+                            "enum": [
+                                "Low",
+                                "Normal",
+                                "High"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "toRecipients",
+                        "spec": [
+                            {
+                                "name": "address",
+                                "type": "email",
+                                "label": "Email Address",
+                                "required": true
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "To Recipients",
+                        "required": true
+                    },
+                    {
+                        "name": "from",
+                        "spec": [
+                            {
+                                "name": "address",
+                                "type": "email",
+                                "label": "Email Address",
+                                "required": true
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "From",
+                        "validate": {
+                            "maxItems": 1
+                        }
+                    },
+                    {
+                        "name": "ccRecipients",
+                        "spec": [
+                            {
+                                "name": "address",
+                                "type": "email",
+                                "label": "Email Address",
+                                "required": true
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "CC Recipients"
+                    },
+                    {
+                        "name": "bccRecipients",
+                        "spec": [
+                            {
+                                "name": "address",
+                                "type": "email",
+                                "label": "Email Address",
+                                "required": true
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Bcc Recipients"
+                    },
+                    {
+                        "name": "replyTo",
+                        "spec": [
+                            {
+                                "name": "address",
+                                "type": "email",
+                                "label": "Email Address",
+                                "required": true
+                            },
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Reply To"
+                    },
+                    {
+                        "name": "attachments",
+                        "spec": [
+                            {
+                                "name": "filename",
+                                "type": "filename",
+                                "label": "File Name",
+                                "required": true,
+                                "semantic": "file:name"
+                            },
+                            {
+                                "name": "data",
+                                "type": "buffer",
+                                "label": "Data",
+                                "required": true,
+                                "semantic": "file:data"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Attachments"
+                    },
+                    {
+                        "name": "internetMessageHeaders",
+                        "spec": [
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name",
+                                "required": true
+                            },
+                            {
+                                "name": "value",
+                                "type": "text",
+                                "label": "Value",
+                                "required": true
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Internet Message Headers"
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu2.make.com",
+        "notes": [
+            {
+                "moduleIds": [
+                    21
+                ],
+                "content": "<p>this loads all coins</p>",
+                "isFilterNote": true,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    18
+                ],
+                "content": "<p>this loads the aggregated data</p>",
+                "isFilterNote": true,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            }
+        ]
+    }
+}
