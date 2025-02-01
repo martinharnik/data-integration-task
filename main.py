@@ -91,13 +91,12 @@ def insert_new_data(data):
     cursor = conn.cursor()
 
     for coin, details in data.items():
-        last_updated_dt = datetime.fromtimestamp(details["last_updated_at"], timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute('''
-            INSERT INTO crypto_prices (coin_name, usd_price, usd_24h_change, last_updated_at, last_updated_dt, description, category)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO crypto_prices (coin_name, usd_price, usd_24h_change, last_updated_at, description, category)
+            VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             coin, details["usd"], details["usd_24h_change"],
-            details["last_updated_at"], last_updated_dt, details["description"], details["category"]
+            details["last_updated_at"],  details["description"], details["category"]
         ))
 
     conn.commit()
@@ -121,6 +120,7 @@ def update_last_updated_dt():
 update_last_updated_dt()
 
 # Function to fetch all cryptocurrency data from the SQLite database and display it
+# This is useful for checking the state of data inside the database
 def fetch_data():
     conn = sqlite3.connect(DB_FILE)
     query = "SELECT * FROM crypto_prices ORDER BY last_updated_dt DESC;"
@@ -130,6 +130,8 @@ def fetch_data():
     print(df)
 
 fetch_data()
+
+##### DATA PREPARATION FOR GOOGLE SHEETS #####
 
 # Function to aggregate data by category
 def aggregate_by_category():
@@ -164,24 +166,8 @@ def aggregate_by_category():
 # Store the aggregated data
 aggregated_data = aggregate_by_category()
 
-# Function to upload data to Google Sheets
-def upload_to_google_sheets(sheet_name, dataframe):
-    """Upload a Pandas DataFrame to a specified Google Sheet."""
-    spreadsheet = gcp_client.open(sheet_name)
-    sheet = spreadsheet.sheet1
-    sheet.clear()  # Clear previous data
-    
-    # Convert DataFrame to a list of lists (Google Sheets format)
-    data_list = [dataframe.columns.tolist()] + dataframe.values.tolist()
-    
-    # Upload data to Google Sheets
-    sheet.update(values=data_list, range_name="A1")
-    
-    print(f"Successfully uploaded data to {sheet_name}!")
-
 # Fetch all coins data
 def fetch_all_coins():
-    """Fetch all coins, their price, their change, and last updated column."""
     query = """
     SELECT 
         coin_name AS Coin, 
@@ -213,7 +199,21 @@ def fetch_all_coins():
 # Fetch all coins data
 all_coins_data = fetch_all_coins()
 
-##### GOOGLE SHEETS #####
+##### UPLOAD DATA TO GOOGLE SHEETS #####
+
+# Function to upload data to Google Sheets
+def upload_to_google_sheets(sheet_name, dataframe):
+    spreadsheet = gcp_client.open(sheet_name)
+    sheet = spreadsheet.sheet1
+    sheet.clear()
+    
+    # Convert DataFrame to a list of lists (Google Sheets format)
+    data_list = [dataframe.columns.tolist()] + dataframe.values.tolist()
+    
+    # Upload data to Google Sheets
+    sheet.update(values=data_list, range_name="A1")
+    
+    print(f"Successfully uploaded data to {sheet_name}!")
 
 # Upload the data to respective Google Sheets
 upload_to_google_sheets("crypto-aggregated", aggregated_data)
