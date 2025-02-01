@@ -6,7 +6,7 @@ import pandas as pd
 import gspread
 from dotenv import load_dotenv
 from openai import OpenAI
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from google.oauth2.service_account import Credentials
 
 # Constants
@@ -37,7 +37,7 @@ data = fetch_crypto_prices()
 # Prepare the prompt for OpenAI API
 coin_names = ", ".join(data.keys())
 prompt = (
-    f"Provide a one-sentence description and the category (Proof of work or Proof of stake) for each of the following cryptocurrencies: {coin_names}."
+    f"Provide a one-sentence description and the category (choose only from Proof of work or Proof of stake) for each of the following cryptocurrencies: {coin_names}."
     "Return only a valid JSON object, without any markdown formatting, code blocks, or additional text. Each key should be the coin name, and values should contain 'description' and 'category'."
     "Ensure the response is properly formatted as a plain JSON object with no extra characters."
 )
@@ -91,7 +91,7 @@ def insert_new_data(data):
     cursor = conn.cursor()
 
     for coin, details in data.items():
-        last_updated_dt = datetime.utcfromtimestamp(details["last_updated_at"]).strftime('%Y-%m-%d %H:%M:%S')
+        last_updated_dt = datetime.fromtimestamp(details["last_updated_at"], timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute('''
             INSERT INTO crypto_prices (coin_name, usd_price, usd_24h_change, last_updated_at, last_updated_dt, description, category)
             VALUES (?, ?, ?, ?, ?, ?, ?)
