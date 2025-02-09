@@ -112,24 +112,24 @@ def update_last_updated_dt():
     cursor.execute("""
         UPDATE crypto_prices 
         SET last_updated_dt = datetime(last_updated_at, 'unixepoch')
-        WHERE last_updated_dt IS NULL OR last_updated_dt = '';
+        WHERE last_updated_dt IS NULL;
     """)
     conn.commit()
     conn.close()
 
 update_last_updated_dt()
 
-# Function to fetch all cryptocurrency data from the SQLite database and display it
-# This is useful for checking the state of data inside the database
-def fetch_data():
-    conn = sqlite3.connect(DB_FILE)
-    query = "SELECT * FROM crypto_prices ORDER BY last_updated_dt DESC;"
-    df = pd.read_sql(query, conn)
-    conn.close()
+# # Function to fetch all cryptocurrency data from the SQLite database and display it
+# # This is useful for checking the state of data inside the database
+# def fetch_data():
+#     conn = sqlite3.connect(DB_FILE)
+#     query = "SELECT * FROM crypto_prices ORDER BY last_updated_dt DESC;"
+#     df = pd.read_sql(query, conn)
+#     conn.close()
 
-    print(df)
+#     print(df)
 
-fetch_data()
+# fetch_data()
 
 ##### DATA PREPARATION FOR GOOGLE SHEETS #####
 
@@ -152,13 +152,9 @@ def aggregate_by_category():
     df = pd.read_sql(query, conn)
     conn.close()
     
-    # Rename columns to have spaces
+    # Format df
     df.columns = ['Category', 'Number of coins', 'Average price (USD)', 'Average change (24h)', 'Last updated']
-    
-    # Convert 'Last updated' column to datetime and add 1 hour
     df['Last updated'] = pd.to_datetime(df['Last updated']) + timedelta(hours=1)
-
-    # Format the Last updated column
     df['Last updated'] = pd.to_datetime(df['Last updated']).dt.strftime('%d %b %Y %H:%M')
     
     return df
@@ -170,12 +166,17 @@ aggregated_data = aggregate_by_category()
 def fetch_all_coins():
     query = """
     SELECT 
-        coin_name AS Coin, 
-        description AS Description,
-        usd_price AS Price, 
-        ROUND(usd_24h_change / 100, 4) AS Change, 
-        last_updated_dt AS LastUpdated
-    FROM crypto_prices
+        cp.coin_name AS Coin, 
+        cp.description AS Description,
+        cp.usd_price AS Price, 
+        ROUND(cp.usd_24h_change / 100, 4) AS Change, 
+        cp.last_updated_dt AS LastUpdated
+    FROM crypto_prices cp
+    INNER JOIN (
+        SELECT coin_name, MAX(last_updated_at) AS max_updated
+        FROM crypto_prices
+        GROUP BY coin_name
+    ) latest ON cp.coin_name = latest.coin_name AND cp.last_updated_at = latest.max_updated
     ORDER BY Price DESC;
     """
 
@@ -184,13 +185,10 @@ def fetch_all_coins():
     df = pd.read_sql(query, conn)
     conn.close()
     
-    # Convert 'Last updated' column to datetime and add 1 hour
+    # Format df
     df['Last updated'] = pd.to_datetime(df['LastUpdated']) + timedelta(hours=1)
-
-    # Format the df
     df['Last updated'] = pd.to_datetime(df['Last updated']).dt.strftime('%d %b %Y, %H:%M')
     df.drop(columns=["LastUpdated"], inplace=True)
-
     df['Coin'] = df['Coin'].str.capitalize()
     df.rename(columns={"Price": "Price (USD)", "Change": "Change (24h)"}, inplace=True)
   
@@ -213,8 +211,6 @@ def upload_to_google_sheets(sheet_name, dataframe):
     # Upload data to Google Sheets
     sheet.update(values=data_list, range_name="A1")
     
-    print(f"Successfully uploaded data to {sheet_name}!")
-
 # Upload the data to respective Google Sheets
 upload_to_google_sheets("crypto-aggregated", aggregated_data)
 upload_to_google_sheets("crypto-all-coins", all_coins_data)
