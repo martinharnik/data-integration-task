@@ -119,17 +119,17 @@ def update_last_updated_dt():
 
 update_last_updated_dt()
 
-# # Function to fetch all cryptocurrency data from the SQLite database and display it
-# # This is useful for checking the state of data inside the database
-# def fetch_data():
-#     conn = sqlite3.connect(DB_FILE)
-#     query = "SELECT * FROM crypto_prices ORDER BY last_updated_dt DESC;"
-#     df = pd.read_sql(query, conn)
-#     conn.close()
+# Function to fetch all cryptocurrency data from the SQLite database and display it
+# This is useful for checking the state of data inside the database
+def fetch_data():
+    conn = sqlite3.connect(DB_FILE)
+    query = "SELECT * FROM crypto_prices ORDER BY last_updated_dt DESC;"
+    df = pd.read_sql(query, conn)
+    conn.close()
 
-#     print(df)
+    print(df)
 
-# fetch_data()
+fetch_data()
 
 ##### DATA PREPARATION FOR GOOGLE SHEETS #####
 
